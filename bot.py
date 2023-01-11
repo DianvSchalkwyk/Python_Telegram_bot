@@ -12,31 +12,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-
-# # function saves message to file
-# async def save_signal(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    
-#     signal_file = open(keys.FILE_PATH, 'w')
-#     signal_file.write(clean(update.message.text, no_emoji=True))
-#     signal_file.close()
-    
-#     convert_file()
-    
-#     print(update.message.text)
     
 #function forward new message from channel to group
 async def forward_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.forward_message(chat_id=keys.GROUP_ID, from_chat_id=keys.MY_SIGNALS_CHANNEL, message_id=update.effective_message.message_id)
-    #print('***forwarded***')
-    #print(update.effective_message.text)
     
     signal_file = open(keys.FILE_PATH, 'w')
     signal_file.write(clean(update.effective_message.text, no_emoji=True))
     signal_file.close()
     
     convert_file()
-    
-    #print(update.effective_message.text)
 
 def convert_file():
     
@@ -83,8 +68,6 @@ def convert_file():
     #put data_array into a string, each element separated by a |
     data_array = '|'.join(data_array)
 
-    # print(data_array)
-
     # save data_array to file
     file_name = open(keys.SAVE_PATH, 'w')
     file_name.write(str(data_array))
@@ -96,10 +79,8 @@ if __name__ == '__main__':
     #create application and use user api key
     application = ApplicationBuilder(keys.PERSONAL_API)
     
-    #save_signal_handler = MessageHandler(filters.TEXT, save_signal)
     forward_message_handler = MessageHandler(filters.TEXT, forward_message)
      
-    #application.add_handler(save_signal_handler)
     application.add_handler(forward_message_handler)
     
     application.run_polling()
