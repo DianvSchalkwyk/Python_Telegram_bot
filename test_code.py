@@ -11,8 +11,9 @@ async def main():
     # Getting information about yourself
     me = await client.get_me()
 
-    # forward messages from group to yourself
-    await client.forward_messages('me', -1001887632157, [1])
+    # wait for new message in channel then forward it to group
+    async for message in client.iter_messages('My Signals Channel', limit=1):
+        await client.send_message('me', message)
 
     # # You can send messages to yourself...
     # await client.send_message('me', 'Hello, myself!')
@@ -50,5 +51,6 @@ async def main():
     #         path = await message.download_media()
     #         print('File saved to', path)  # printed after download is done
 
-with client:
+#loop through program until stopped
+while True:
     client.loop.run_until_complete(main())
