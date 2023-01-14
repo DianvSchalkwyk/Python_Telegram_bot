@@ -8,11 +8,12 @@ from cleantext  import clean
 api_id      = keys.PERSONAL_API
 api_hash    = keys.PERSONAL_HASH
 client      = TelegramClient('anon', api_id, api_hash)
+new_signal  = ""
 
 client.start()
 
 def my_split(s):
-    return re.split('(\d+.\d+)', s)
+    return re.split('(\d+.*\d+)', s)
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -23,12 +24,14 @@ def convert_file():
     
     file_name = open(keys.FILE_PATH, 'r')
 
-    # split file_name string into array
-    data_array = file_name.read().splitlines()
+    # split file_name string into array and make all upper case
+    data_array = file_name.read().upper().splitlines()
     print(data_array[0])
 
-    #if first element of data_array in upper case is NOT equal to an item in the CURRENCIES_LIST, then exit the function
+    #if first element of data_array in upper case is NOT equal to an item in the CURRENCIES_LIST, then clear the file content and exit the function
     if data_array[0].upper() not in keys.TRADE_LIST:
+        file_name.write('')
+        file_name.close()
         print('not in list')
         return
 
@@ -36,7 +39,9 @@ def convert_file():
     if not data_array[-1].startswith('sl'):
         data_array.pop()
 
+    # split data_array[1] into 2 elements
     data_array[1] = my_split(data_array[1])
+    
 
     # if data_array[1] has 3 elements, then delete the last one
     if len(data_array[1]) == 3:
@@ -54,22 +59,21 @@ def convert_file():
 
     #replace tp1:, tp2:, tp3:, sl-, " " and : with ""
     for i in range(len(data_array)):
-        data_array[i] = data_array[i].replace('tp1:', '')
-        data_array[i] = data_array[i].replace('tp2:', '')
-        data_array[i] = data_array[i].replace('tp3:', '')
-        data_array[i] = data_array[i].replace('sl-', '')
-        data_array[i] = data_array[i].replace(' ', '')
-        data_array[i] = data_array[i].replace(':', '')
+        for j in range(len(keys.REMOVE_LIST)):
+            data_array[i] = data_array[i].replace(keys.REMOVE_LIST[j], '')
 
     #put data_array into a string, each element separated by a |
     data_array = '|'.join(data_array)
 
+    global new_signal
+    new_signal = str(data_array)
+
     # save data_array to file
-    file_name = open(keys.SAVE_PATH, 'w')
+    file_name = open(keys.FILE_PATH, 'w')
     file_name.write(str(data_array))
     file_name.close()
 
-@client.on(events.NewMessage(chats=-1001481257205))
+@client.on(events.NewMessage(chats=-1001887632157))
 async def main(event):
 
     signal_file = open(keys.FILE_PATH, 'w')
@@ -78,7 +82,8 @@ async def main(event):
     
     convert_file()
 
-    await client.forward_messages(-890927419, event.message)
+    #send new_signal to group
+    await client.send_message(-890927419, new_signal)
 
 with client:
     client.run_until_disconnected()
