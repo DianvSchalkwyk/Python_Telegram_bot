@@ -30,9 +30,10 @@ def convert_file():
 
     #if first element of data_array in upper case is NOT equal to an item in the CURRENCIES_LIST, then clear the file content and exit the function
     if data_array[0].upper() not in keys.TRADE_LIST:
+        file_name = open(keys.FILE_PATH, 'w')
         file_name.write('')
         file_name.close()
-        print('not in list')
+        print('Signal received not valid.')
         return
 
     # if last element of data_array does not start with sl, then delete it
@@ -73,7 +74,7 @@ def convert_file():
     file_name.write(str(data_array))
     file_name.close()
 
-@client.on(events.NewMessage(chats=-1001887632157))
+@client.on(events.NewMessage(chats=keys.FOREX_CHANNEL_ID))
 async def main(event):
 
     signal_file = open(keys.FILE_PATH, 'w')
@@ -82,8 +83,11 @@ async def main(event):
     
     convert_file()
 
-    #send new_signal to group
-    await client.send_message(-890927419, new_signal)
+    #send new_signal to group if new_signal is not empty, else send "no signal"
+    if new_signal != "":
+        await client.send_message(keys.GROUP_ID, new_signal)
+    else:
+        await client.send_message(keys.GROUP_ID, "Message received, but not a signal.")
 
 with client:
     client.run_until_disconnected()
