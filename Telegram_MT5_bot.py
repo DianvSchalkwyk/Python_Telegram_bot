@@ -74,7 +74,7 @@ def convert_file():
     file_name.write(str(data_array))
     file_name.close()
 
-@client.on(events.NewMessage(chats=keys.FOREX_CHANNEL_ID))
+@client.on(events.NewMessage(chats=keys.MY_SIGNALS_CHANNEL))
 async def main(event):
 
     signal_file = open(keys.FILE_PATH, 'w')
