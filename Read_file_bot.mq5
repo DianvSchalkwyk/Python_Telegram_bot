@@ -25,10 +25,10 @@ double position_size = 0.01;
 int    slippage = 5;
 
 double point;
-double bid;
-double open_price;
-int    decimal_places;
+double bid_price;
 double ask_price;
+int    decimal_places;
+double ask_price2;
 
 void OnTick()
 {
@@ -77,30 +77,25 @@ void OnTick()
             stop_loss          = NormalizeDouble(stop_loss,decimal_places);
             take_profit_custom = NormalizeDouble(take_profit_custom,decimal_places);
             point              = SymbolInfoDouble(symbol_names,SYMBOL_POINT);
-            //bid                = SymbolInfoDouble(symbol_names,SYMBOL_BID);
-            //open_price         = SymbolInfoDouble(symbol_names,SYMBOL_ASK);
-            ask_price          = NormalizeDouble(SymbolInfoDouble(signal_array[0], SYMBOL_ASK), _Digits);
+            bid_price          = SymbolInfoDouble(symbol_names,SYMBOL_BID);
+            ask_price          = SymbolInfoDouble(symbol_names,SYMBOL_ASK);
+            //ask_price2         = NormalizeDouble(SymbolInfoDouble(signal_array[0], SYMBOL_ASK), _Digits);
             stop_loss_half     = NormalizeDouble(((ask_price + stop_loss)/2), decimal_places);
    
             Print("Symbol name: "  , symbol_names);
             Print("Signal type: "  , signal_type);
             Print("Signal price: " , signal_price);
-            Print("Current price: ", ask_price);
+            Print("Ask price: "    , ask_price);
             Print("Take profit: "  , take_profit_custom);
             Print("Stop loss: "    , stop_loss);
             Print("Limit order: "  , stop_loss_half);
             
+            //Print("bid_price: "     , bid_price);
+            //Print("ask_price: "     , ask_price);
+            //Print("ask_price2: "    , ask_price2);
+            //Print("stop_loss_half: ", stop_loss_half);
             
-            
-            //if(signal_type == "BUY"){
-            //   while(trade.ResultRetcode() == NULL)
-            //   {
-            //      trade.Buy(position_size, symbol_names, ask_price, stop_loss, take_profit_custom);
-            //      Print("Dev=",trade.RequestDeviation());
-            //      trade.BuyLimit(position_size, stop_loss_half, symbol_names, stop_loss, take_profit_custom);
-            //   }
-            //}
-            
+            //You buy at the Ask and sell at the Bid
             if(signal_type == "BUY")
             {
                trade.Buy(position_size, symbol_names, ask_price, stop_loss, take_profit_custom);
@@ -115,7 +110,7 @@ void OnTick()
             }
             else if(signal_type == "SELL")
             {
-               trade.Sell(position_size, symbol_names, ask_price, stop_loss, take_profit_custom);
+               trade.Sell(position_size, symbol_names, bid_price, stop_loss, take_profit_custom);
                trade.SellLimit(position_size, stop_loss_half, symbol_names, stop_loss, take_profit_custom);
             
             }
