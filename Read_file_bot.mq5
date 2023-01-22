@@ -28,7 +28,6 @@ double point;
 double bid_price;
 double ask_price;
 int    decimal_places;
-double ask_price2;
 
 void OnTick()
 {
@@ -79,7 +78,6 @@ void OnTick()
             point              = SymbolInfoDouble(symbol_names,SYMBOL_POINT);
             bid_price          = SymbolInfoDouble(symbol_names,SYMBOL_BID);
             ask_price          = SymbolInfoDouble(symbol_names,SYMBOL_ASK);
-            //ask_price2         = NormalizeDouble(SymbolInfoDouble(signal_array[0], SYMBOL_ASK), _Digits);
             stop_loss_half     = NormalizeDouble(((ask_price + stop_loss)/2), decimal_places);
    
             Print("Symbol name: "  , symbol_names);
@@ -89,11 +87,6 @@ void OnTick()
             Print("Take profit: "  , take_profit_custom);
             Print("Stop loss: "    , stop_loss);
             Print("Limit order: "  , stop_loss_half);
-            
-            //Print("bid_price: "     , bid_price);
-            //Print("ask_price: "     , ask_price);
-            //Print("ask_price2: "    , ask_price2);
-            //Print("stop_loss_half: ", stop_loss_half);
             
             //You buy at the Ask and sell at the Bid
             if(signal_type == "BUY")
