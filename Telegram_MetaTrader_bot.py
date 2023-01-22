@@ -7,10 +7,7 @@ from functions import *
 from telethon   import TelegramClient, events
 from cleantext  import clean
 
-api_id      = keys.PERSONAL_API
-api_hash    = keys.PERSONAL_HASH
-client      = TelegramClient('anon', api_id, api_hash)
-new_signal  = ""
+client = TelegramClient('anon', keys.PERSONAL_API, keys.PERSONAL_HASH)
 
 client.start()
 
@@ -19,7 +16,9 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-@client.on(events.NewMessage(chats=keys.MY_CHANNEL))
+@client.on(events.NewMessage(chats=keys.FOREX_CHANNEL_ID))
+@client.on(events.NewMessage(chats=keys.MY_CHANNEL)) 
+
 async def main(event):
 
     signal_file = open(keys.FILE_PATH, 'w')
@@ -29,8 +28,8 @@ async def main(event):
     convert_file()
 
     #send new_signal to group if new_signal is not empty, else send "no signal"
-    if new_signal != "":
-        await client.send_message(keys.GROUP_ID, new_signal)
+    if keys.NEW_SIGNAL != "":
+        await client.send_message(keys.GROUP_ID, keys.NEW_SIGNAL)
     else:
         await client.send_message(keys.GROUP_ID, "Message received, but not a signal.")
 

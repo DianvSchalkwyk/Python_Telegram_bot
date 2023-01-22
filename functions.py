@@ -22,12 +22,12 @@ def convert_file():
         print('Signal received not valid.')
         return
 
-    # remove last element of array, it is usually just a message to move the stoploss
-    data_array.pop()
+    #use re to check if last element contains "STOP" or "MOVE", if it does, remove the element
+    if re.search('STOP|MOVE', data_array[-1]):
+        data_array.pop()
 
     # split data_array[1] into 2 elements
     data_array[1] = my_split(data_array[1])
-    
 
     # if data_array[1] has 3 elements, then delete the last one
     if len(data_array[1]) == 3:
@@ -51,8 +51,8 @@ def convert_file():
     #put data_array into a string, each element separated by a |
     data_array = '|'.join(data_array)
 
-    global new_signal
-    new_signal = str(data_array)
+    #set keys.NEW_SIGNAL to data_array
+    keys.NEW_SIGNAL = data_array
 
     # save data_array to file
     file_name = open(keys.FILE_PATH, 'w')
