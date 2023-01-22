@@ -1,11 +1,8 @@
-import constants as keys
 import logging
-import re
 
 from functions import *
-
-from telethon   import TelegramClient, events
-from cleantext  import clean
+from telethon  import TelegramClient, events
+from cleantext import clean
 
 client = TelegramClient('anon', keys.PERSONAL_API, keys.PERSONAL_HASH)
 
