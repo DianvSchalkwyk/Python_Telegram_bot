@@ -1,4 +1,4 @@
-import Constants as keys
+import constants as keys
 import re
 
 '''function to split te signal type and the buy price into 2 different elements'''
