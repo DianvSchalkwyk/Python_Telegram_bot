@@ -1,4 +1,4 @@
-import Constants as keys
+import constants as keys
 from telethon import TelegramClient
 
 api_id = keys.PERSONAL_API
