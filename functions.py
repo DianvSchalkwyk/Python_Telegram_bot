@@ -22,8 +22,8 @@ def convert_file():
         print('Signal received not valid.')
         return
 
-    #use re to check if last element contains "STOP" or "MOVE", if it does, remove the element
-    if re.search('STOP|MOVE', data_array[-1]):
+    #use re to check if last element contains "STOP" or "MOVE" or "SL", if it does, remove the element
+    if re.search('STOP|MOVE|SL', data_array[-1]):
         data_array.pop()
 
     # split data_array[1] into 2 elements
