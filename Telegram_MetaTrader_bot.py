@@ -20,18 +20,16 @@ logging.basicConfig(
 
 async def main(event):
 
-    #write signal to file, clean signal from emojis
-    signal_file = open(keys.FILE_PATH, 'w')
-    signal_file.write(clean(event.message.text, no_emoji=True))
-    signal_file.close()
+    #copy event.message.text to signal_string and clean signal_string from emojis and line breaks
+    signal_string = clean(event.message.text, no_emoji=True, no_line_breaks=True, lower=False)
     
-    #read signal from file and convert it to a valid signal
-    convert_file()
+    #send signal_string to convert_string() to check if it is a valid signal
+    convert_string(signal_string)
 
     #if the message was a valid signal, send it to the group, otherwise send a message that the message was not a valid signal
     if keys.NEW_SIGNAL != "":
         await client.send_message(keys.GROUP_ID, keys.NEW_SIGNAL)
-
+        
         #set key.NEW_SIGNAL to "" so that the next signal can be checked
         keys.NEW_SIGNAL = ""
 

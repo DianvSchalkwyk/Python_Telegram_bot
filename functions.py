@@ -6,53 +6,81 @@ def my_split(string_to_split):
     return re.split('(\d+.\d+)', string_to_split)
 
 '''function to check if the signal is valid, if it is, it will be formatted and saved to a file'''
-def convert_file():
+def convert_string(signal_string_to_convert):
     
-    file_name = open(keys.FILE_PATH, 'r')
+    #create signal_pair, data_array and NEW_SIGNAL as global variables
+    data_array = []
 
-    # split file_name string into array and make all upper case
-    data_array = file_name.read().upper().splitlines()
-    print(data_array[0])
+    signal_string = signal_string_to_convert
 
-    #if first element of data_array in upper case is NOT equal to an item in the CURRENCIES_LIST, then clear the file content and exit the function
-    if data_array[0].upper() not in keys.TRADE_LIST:
-        file_name = open(keys.FILE_PATH, 'w')
-        file_name.write('')
-        file_name.close()
-        print('Signal received not valid.')
+    #remove all : and - from signal_string
+    signal_string = signal_string.replace(":", " ")
+    signal_string = signal_string.replace("-", " ")
+    
+    #split signal_string into data_received where there is a space or a new line
+    data_received = re.split(r'\s|\n', signal_string)
+
+    #remove all empty elements that contain "" or " " from data_receive
+    data_received = list(filter(None, data_received))
+
+    #loop through array and make all elements uppercase
+    for i in range(len(data_received)):
+        data_received[i] = data_received[i].upper()
+
+    #loop through array and get element that contains the signal pair, if found, add to data_array and break loop
+    for i in range(len(data_received)):
+        if data_received[i] in keys.TRADE_LIST:
+            data_array.append(data_received[i])
+            break
+
+    #if data_array is empty, exit function
+    if not data_array:
+        print("Not a valid signal")
         return
 
-    #use re to check if last element contains "STOP" or "MOVE" or "SL", if it does, remove the element
-    if re.search('STOP|MOVE|SL', data_array[-1]):
-        data_array.pop()
-
-    # split data_array[1] into 2 elements
-    data_array[1] = my_split(data_array[1])
-
-    # if data_array[1] has 3 elements, then delete the last one
-    if len(data_array[1]) == 3:
-        data_array[1].pop()
+    #loop through data_reveived, use regext to check for "BUY" or "SELL" and append to data_array
+    for i in range(len(data_received)):
+        if re.search(r'BUY|SELL', data_received[i]):
+            data_array.append(data_received[i])
         
-    #remove element 2 from data_array
-    signal_type = data_array.pop(1)
-    
-    signal_part_1 = signal_type[0]
-    signal_part_2 = signal_type[1]
+            #loop through the rest of data_reveived and use regext to check for a number and append to data_array
+            for j in range(i+1, len(data_received)):
+                if re.search(r'\d+.\d+', data_received[j]):
+                    data_array.append(data_received[j])
+                    break
+            
+            break
 
-    #insert signal_part_1 and signal_part_2 into data_array after element 0
-    data_array.insert(1, signal_part_1)
-    data_array.insert(2, signal_part_2)
+    #loop through data_reveived, use regext to check for TP/TP1/TAKE PROFIT/TAKEPROFIT
+    for i in range(len(data_received)):
+        if re.search(r'TP|TP1|TP.|TP1.|TAKE PROFIT|TAKEPROFIT', data_received[i]):
+        
+            #append the next element as the take profit price to use for the trade
+            data_array.append(data_received[i+1])
 
-    #replace tp1:, tp2:, tp3:, sl-, " " and : with ""
-    for i in range(len(data_array)):
-        for j in range(len(keys.REMOVE_LIST)):
-            data_array[i] = data_array[i].replace(keys.REMOVE_LIST[j], '')
+            break
 
-    #put data_array into a string, each element separated by a |
-    data_array = '|'.join(data_array)
+    #loop through data_reveived, use regext to check for SL/SL1/STOP LOSS/STOPLOSS
+    for i in range(len(data_received)):
+        if re.search(r'SL|SL1|SL.|STOP LOSS|STOPLOSS', data_received[i]):
+        
+            #append the next element as the stop loss price to use for the trade
+            data_array.append(data_received[i+1])
 
-    #set keys.NEW_SIGNAL to data_array
+            break
+
+    #if data_array 0 is not in keys.TRADE_LIST, or data_array 1 is not BUY or SELL, or data_array 2 is not a number, or data_array 3 is not a number, or data_array 4 is not a number, exit function
+    if data_array[0] not in keys.TRADE_LIST or data_array[1] not in ["BUY", "SELL"] or not re.search(r'\d+.\d+', data_array[2]) or not re.search(r'\d+.\d+', data_array[3]) or not re.search(r'\d+.\d+', data_array[4]):
+        print("Not a valid signal")
+        return
+
+    #save data_array to new string, split elements with |
+    data_array = "|".join(data_array)
+
+    #save data_array to keys.NEW_SIGNAL so it can be sent to group
     keys.NEW_SIGNAL = data_array
+
+    print(data_array)
 
     # save data_array to file
     file_name = open(keys.FILE_PATH, 'w')
