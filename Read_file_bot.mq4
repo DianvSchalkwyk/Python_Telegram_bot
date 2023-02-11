@@ -22,6 +22,7 @@ double take_profit_custom;
 double stop_loss;
 double stop_loss_half;
 double position_size = 0.01;
+double position_size_half = (position_size/2);
 int    slippage = 5;
 
 double point;
@@ -72,11 +73,7 @@ void OnTick()
             signal_type   = signal_array[1];
             signal_price  = StringToDouble(signal_array[2]);
             take_profit_1 = StringToDouble(signal_array[3]);
-            take_profit_2 = StringToDouble(signal_array[4]);
-            take_profit_3 = StringToDouble(signal_array[5]);
-            stop_loss     = StringToDouble(signal_array[6]);
-   
-            take_profit_custom = (take_profit_1+take_profit_2)/2;
+            stop_loss     = StringToDouble(signal_array[4]);
             
             decimal_places     = (int)SymbolInfoInteger(symbol_names,SYMBOL_DIGITS);
             
@@ -86,7 +83,6 @@ void OnTick()
    
             stop_loss          = NormalizeDouble(stop_loss,decimal_places);
             take_profit_custom = NormalizeDouble(take_profit_custom,decimal_places);
-            stop_loss_half     = NormalizeDouble(((ask_price + stop_loss)/2), decimal_places);
    
             Print("Symbol name: "  , symbol_names);
             Print("Signal type: "  , signal_type);
@@ -94,7 +90,6 @@ void OnTick()
             Print("Ask price: "    , ask_price);
             Print("Take profit: "  , take_profit_1);
             Print("Stop loss: "    , stop_loss);
-            Print("Limit order: "  , stop_loss_half);
    
             //You buy at the Ask and sell at the Bid
             if(signal_type == "BUY")
@@ -124,6 +119,22 @@ void OnTick()
          }
       }
    }
+
+   //loop through all open orders, if order is 10 points profit, move stop loss to breakeven
+   for(int i = OrdersTotal()-1; i >= 0; i--)
+   {
+      if(OrderSelect(i, SELECT_BY_POS, MODE_TRADES))
+      {
+         if(OrderProfit() >= 100*point)
+            {
+               OrderModify(OrderTicket(), OrderOpenPrice(), OrderOpenPrice(), OrderTakeProfit(), 0, clrNone, "Breakeven");
+            }
+      }
+   }
+   
+
+ 
+ 
  }
 //+------------------------------------------------------------------+
 
