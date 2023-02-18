@@ -69,8 +69,25 @@ def convert_string(signal_string_to_convert):
 
             break
 
-    #if data_array 0 is not in keys.TRADE_LIST, or data_array 1 is not BUY or SELL, or data_array 2 is not a number, or data_array 3 is not a number, or data_array 4 is not a number, exit function
-    if data_array[0] not in keys.TRADE_LIST or data_array[1] not in ["BUY", "SELL"] or not re.search(r'\d+.\d+', data_array[2]) or not re.search(r'\d+.\d+', data_array[3]) or not re.search(r'\d+.\d+', data_array[4]):
+    # loop through data_reveived, use regext to check for 10PIP/10PIPS/10 PIP/10 PIPS
+    for i in range(len(data_received)):
+        if re.search(r'10PIP|10PIPS|10 PIP|10 PIPS', data_received[i]):
+            data_array.append("PIPS10")
+            break
+
+    #loop through data_array, if it does not contain PIPS10, append NORMAL
+    if "PIPS10" not in data_array:
+        data_array.append("NORMAL")
+        
+    '''if data_array 0 is not in keys.TRADE_LIST,
+    or data_array 1 is not BUY or SELL,
+    or data_array 2 is not a number,
+    or data_array 3 is not a number,
+    or data_array 4 is not a number
+    or data_array 5 is not PIPS10 or NORMAL,
+    exit function
+    '''
+    if data_array[0] not in keys.TRADE_LIST or data_array[1] not in ["BUY", "SELL"] or not re.search(r'\d+.\d+', data_array[2]) or not re.search(r'\d+.\d+', data_array[3]) or not re.search(r'\d+.\d+', data_array[4] or data_array[5] not in ["PIPS10", "NORMAL"]):
         print("Not a valid signal")
         return
 
